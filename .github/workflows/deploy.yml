@@ -1,0 +1,62 @@
+name: Deploy to GitHub Pages
+
+# Для новичка: этот файл автоматически деплоит приложение на GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  # Ручной запуск деплоя
+  workflow_dispatch:
+
+# Разрешаем запись в репозиторий для деплоя
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Ограничиваем одновременный деплой
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    name: 🚀 Сборка и деплой
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Выгружаем код
+      uses: actions/checkout@v3
+      
+    - name: 🟢 Устанавливаем Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 📦 Устанавливаем зависимости
+      run: npm ci
+      
+    - name: 🔍 Проверяем код
+      run: npm run lint
+      
+    - name: 🧪 Запускаем тесты
+      run: npm test
+      
+    - name: 🏗️ Собираем проект
+      run: npm run build
+      
+    - name: 🛠️ Настраиваем Pages
+      uses: actions/configure-pages@v3
+      
+    - name: 📤 Загружаем артефакты
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: dist/
+        
+    - name: 🚀 Деплоим на GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v2

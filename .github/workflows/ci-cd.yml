@@ -1,0 +1,82 @@
+name: CI/CD Pipeline
+
+# Для новичка: этот файл описывает автоматические проверки при пуше кода
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Job для проверки качества кода
+  quality:
+    name: 🔍 Проверка качества кода
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Выгружаем код
+      uses: actions/checkout@v3
+      
+    - name: 🟢 Устанавливаем Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 📦 Устанавливаем зависимости
+      run: npm ci
+      
+    - name: 🔍 Проверяем код линтером
+      run: npm run lint
+      
+    - name: 💅 Проверяем форматирование кода
+      run: npm run format:check
+      
+    - name: 🧪 Запускаем тесты
+      run: npm test
+      
+    - name: 📊 Генерируем отчет о покрытии
+      run: npm run test:coverage
+      
+    - name: 📤 Загружаем отчет о покрытии
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: coverage/
+
+  # Job для сборки проекта
+  build:
+    name: 🏗️ Сборка проекта
+    runs-on: ubuntu-latest
+    needs: quality # Запускается только если quality прошел успешно
+    
+    steps:
+    - name: 📥 Выгружаем код
+      uses: actions/checkout@v3
+      
+    - name: 🟢 Устанавливаем Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 📦 Устанавливаем зависимости
+      run: npm ci
+      
+    - name: 🏗️ Собираем проект
+      run: npm run build
+      
+    - name: 🔍 Проверяем собранные файлы
+      run: |
+        ls -la dist/
+        [ -f dist/index.html ] && echo "✅ HTML файл создан"
+        [ -f dist/bundle.*.js ] && echo "✅ JS файл создан"
+        
+    - name: 📤 Сохраняем артефакты сборки
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: dist/
+        retention-days: 7
+
