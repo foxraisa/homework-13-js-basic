@@ -29,10 +29,10 @@ jobs:
     
     steps:
     - name: 📥 Выгружаем код
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       
     - name: 🟢 Устанавливаем Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
@@ -53,10 +53,12 @@ jobs:
       uses: actions/configure-pages@v3
       
     - name: 📤 Загружаем артефакты
-      uses: actions/upload-pages-artifact@v2
+      uses: actions/upload-pages-artifact@v3
       with:
         path: dist/
         
     - name: 🚀 Деплоим на GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v2
+      uses: actions/deploy-pages@v4
+      
+      

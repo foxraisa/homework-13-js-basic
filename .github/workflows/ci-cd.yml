@@ -16,10 +16,10 @@ jobs:
     
     steps:
     - name: 📥 Выгружаем код
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       
     - name: 🟢 Устанавливаем Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
@@ -40,7 +40,7 @@ jobs:
       run: npm run test:coverage
       
     - name: 📤 Загружаем отчет о покрытии
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-report
         path: coverage/
@@ -53,10 +53,10 @@ jobs:
     
     steps:
     - name: 📥 Выгружаем код
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       
     - name: 🟢 Устанавливаем Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
@@ -74,7 +74,7 @@ jobs:
         [ -f dist/bundle.*.js ] && echo "✅ JS файл создан"
         
     - name: 📤 Сохраняем артефакты сборки
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-artifacts
         path: dist/
