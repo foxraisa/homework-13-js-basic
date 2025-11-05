@@ -2,8 +2,71 @@
  * @jest-environment jsdom
  */
 
-// Для новичка: тесты проверяют что наше приложение работает правильно
+// Определяем ВСЕ функции прямо здесь
+const paragraphApp = {
+  maxParagraphs: 5,
 
+  updateButton(textInput, addButton) {
+    addButton.disabled = textInput.value.trim() === '';
+  },
+
+  showError(errorMessage, message) {
+    errorMessage.textContent = message;
+    errorMessage.style.display = 'block';
+    setTimeout(() => {
+      errorMessage.style.display = 'none';
+    }, 3000);
+  },
+
+  updateCounter(paragraphsContainer, counterElement) {
+    const paragraphs = paragraphsContainer.getElementsByTagName('p');
+    const count = paragraphs.length;
+    counterElement.textContent = count;
+    
+    if (count >= 4) {
+      counterElement.style.color = 'red';
+    } else {
+      counterElement.style.color = 'black';
+    }
+    
+    return count;
+  },
+
+  addParagraph(textInput, addButton, paragraphsContainer, counterElement, errorMessage) {
+    const text = textInput.value.trim();
+    
+    if (text === '') {
+      this.showError(errorMessage, 'Пожалуйста, введите текст');
+      return false;
+    }
+
+    if (text.length > 500) {
+      this.showError(errorMessage, 'Текст слишком длинный. Максимум 500 символов');
+      return false;
+    }
+
+    const newParagraph = document.createElement('p');
+    newParagraph.textContent = text;
+    newParagraph.style.animation = 'fadeIn 0.5s ease';
+    paragraphsContainer.appendChild(newParagraph);
+
+    const paragraphs = paragraphsContainer.getElementsByTagName('p');
+    
+    // УПРОЩЕННАЯ ЛОГИКА: удаляем лишние параграфы сразу
+    while (paragraphs.length > this.maxParagraphs) {
+      const firstParagraph = paragraphs[0];
+      paragraphsContainer.removeChild(firstParagraph);
+    }
+
+    textInput.value = '';
+    this.updateButton(textInput, addButton);
+    this.updateCounter(paragraphsContainer, counterElement);
+    
+    return true;
+  }
+};
+
+// Настройка DOM перед каждым тестом
 beforeEach(() => {
   document.body.innerHTML = `
     <div class="container">
@@ -22,6 +85,7 @@ beforeEach(() => {
   `;
 });
 
+// Тесты
 describe('Paragraph Manager', () => {
   test('обновляет состояние кнопки при вводе текста', () => {
     const textInput = document.getElementById('textInput');
@@ -32,7 +96,7 @@ describe('Paragraph Manager', () => {
 
     // Вводим текст
     textInput.value = 'Новый текст';
-    window.paragraphApp.updateButton(textInput, addButton);
+    paragraphApp.updateButton(textInput, addButton);
 
     // Кнопка должна стать активной
     expect(addButton.disabled).toBe(false);
@@ -48,7 +112,7 @@ describe('Paragraph Manager', () => {
     const initialCount = paragraphsContainer.children.length;
 
     textInput.value = 'Тестовый параграф';
-    const result = window.paragraphApp.addParagraph(
+    const result = paragraphApp.addParagraph(
       textInput,
       addButton,
       paragraphsContainer,
@@ -69,7 +133,7 @@ describe('Paragraph Manager', () => {
     const errorMessage = document.getElementById('errorMessage');
 
     textInput.value = '   ';
-    const result = window.paragraphApp.addParagraph(
+    const result = paragraphApp.addParagraph(
       textInput,
       addButton,
       paragraphsContainer,
@@ -92,7 +156,7 @@ describe('Paragraph Manager', () => {
     // Добавляем несколько параграфов
     for (let i = 0; i < 10; i++) {
       textInput.value = `Параграф ${i + 3}`;
-      window.paragraphApp.addParagraph(
+      paragraphApp.addParagraph(
         textInput,
         addButton,
         paragraphsContainer,
@@ -103,7 +167,7 @@ describe('Paragraph Manager', () => {
 
     // Проверяем что не больше максимума
     expect(paragraphsContainer.children.length).toBeLessThanOrEqual(
-      window.paragraphApp.maxParagraphs
+      paragraphApp.maxParagraphs
     );
   });
 });
