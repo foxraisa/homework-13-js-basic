@@ -1,0 +1,7 @@
+# эти файлы Prettier не будет форматировать
+
+node_modules/
+dist/
+coverage/
+package-lock.json
+*.min.js
